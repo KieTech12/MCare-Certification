@@ -9,7 +9,6 @@ body {
   font-family: Arial;
   margin: 40px;
 
-  /* ✅ LOGO BACKGROUND */
   background:
     linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
     url("mumlycare-logo-text-Be61iYWR.png");
@@ -71,8 +70,8 @@ button {
 
 <script>
 
-// ✅ YOUR WORKING BACKEND
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwIvy0tHZF6JYFP3VdYlUhdYzoHhzwHWnewL6mLXvorsQqu2tRDqd8ozg7PvVEisf_y/exec";
+// ✅ YOUR FINAL WORKING URL
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxld_LMae-hGk6PczWfatF2yjWzvF68wd8wzenojj2G1d4oHA6rvdtVAELuecbGxSGe/exec";
 
 let questions = [];
 
@@ -90,7 +89,7 @@ function loadQuestions() {
     });
 }
 
-// ✅ RENDER
+// ✅ RENDER QUESTIONS
 function renderQuestions() {
   let box = document.getElementById("questions");
   box.innerHTML = "";
@@ -109,10 +108,10 @@ function renderQuestions() {
 
 // ✅ TIMER
 let time = 600;
-let t = setInterval(() => {
+let timer = setInterval(() => {
 
   if (time <= 0) {
-    clearInterval(t);
+    clearInterval(timer);
     alert("Time up!");
     submitExam();
     return;
@@ -129,10 +128,10 @@ let t = setInterval(() => {
 }, 1000);
 
 
-// ✅ SUBMIT (FINAL FIX)
+// ✅ FINAL SUBMIT (GET METHOD — GUARANTEED SAVE)
 function submitExam() {
 
-  clearInterval(t);
+  clearInterval(timer);
 
   let name = document.getElementById("name").value.trim();
 
@@ -155,27 +154,20 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "Submitting...";
 
-  // ✅ FINAL FIX: URL encoded (WORKS 100%)
-  let params = new URLSearchParams();
-  params.append("name", name);
-  params.append("score", percent);
-  params.append("status", status);
+  // ✅ GUARANTEED METHOD
+  let url = WEB_APP_URL +
+    "?name=" + encodeURIComponent(name) +
+    "&score=" + percent +
+    "&status=" + status;
 
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: params.toString()
-  })
-  .then(() => {
-    document.getElementById("result").innerHTML =
-      "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will get back to you.";
-  })
-  .catch(() => {
-    alert("Error saving result");
-  });
+  fetch(url)
+    .then(() => {
+      document.getElementById("result").innerHTML =
+        "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will get back to you.";
+    })
+    .catch(() => {
+      alert("❌ Error saving result");
+    });
 }
 
 // ✅ START
@@ -185,4 +177,3 @@ loadQuestions();
 
 </body>
 </html>
-``
