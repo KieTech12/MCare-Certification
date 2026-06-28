@@ -17,76 +17,11 @@ body { font-family: Arial; margin:40px; }
 <button onclick="submitExam()">Submit</button>
 <p id="result"></p>
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQXV64cNdi4rn9TcUgSz3QGYdJMbCMWJWp78Dsu_-7Z8O3vBEI5T2a5BZY5p3HejeK/exec";
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9l8P2laoLoXVbXS2F5rZakv9x-td6fkvrz8rDK_s-zKlFYi6KsUhK0W2MsoUdBbwp/exec";
 
 const questions = [
   {q:"Primary responsibility of caregiver?", o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
   {q:"Report elder abuse to?", o:["Private","Supervisor","Friends","Self"], a:1},
   {q:"Normal SpO2?", o:["<85","85-90","95-100",">100"], a:2},
-  {q:"Reposition frequency?", o:["Daily","4-6 hours","Every 2 hours","On request"], a:2},
-  {q:"Chest pain action?", o:["Water","Rest","Emergency call","Ignore"], a:2}
-];
-
-function renderQuestions() {
-  let qBox = document.getElementById("questions");
-  qBox.innerHTML = "";
-  questions.forEach(function(q,i){
-    let html = "<p><b>" + (i+1) + ". " + q.q + "</b></p>";
-    for(let j=0; j < q.o.length; j++){
-      html += `<input type="radio" name="q${i}" value="${j}"> ${q.o[j]}<br>`;
-    }
-    qBox.innerHTML += html + "<br>";
-  });
-}
-renderQuestions();
-
-let time = 600;
-let timerInterval = setInterval(function(){
-  if (time <= 0) {
-    clearInterval(timerInterval);
-    alert("⏰ Time's up! Auto submitting...");
-    submitExam();
-    return;
-  }
-  time--;
-  let min = Math.floor(time/60);
-  let sec = time%60;
-  document.getElementById("timer").innerText =
-    "Time Left: " + min + ":" + (sec < 10 ? "0" : "") + sec;
-}, 1000);
-
-function submitExam(){
-  clearInterval(timerInterval);
-  let name = document.getElementById("name").value.trim();
-  if(!name){ alert("Please enter your name"); return; }
-
-  let score = 0;
-  for(let i=0; i < questions.length; i++){
-    let ans = document.querySelector(`input[name="q${i}"]:checked`);
-    if(ans && parseInt(ans.value) === questions[i].a){ score++; }
-  }
-
-  let percent = ((score / questions.length) * 100).toFixed(0);
-  let status = percent >= 70 ? "PASS" : "FAIL";
-
-  document.getElementById("result").innerHTML =
-    `${name} | Score: ${percent}% | ${status}`;
-
-  // ✅ FIXED FETCH — mode: "no-cors" resolves the redirect/CORS error
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `name=${encodeURIComponent(name)}&score=${encodeURIComponent(percent)}&status=${encodeURIComponent(status)}`
-  })
-  .then(() => {
-    alert("✅ SUCCESS: Data saved to sheet");
-  })
-  .catch(err => {
-    console.error(err);
-    alert("❌ ERROR sending data");
-  });
-}
-</script>
-</body>
-</html>
+  {q:"Reposition frequency?", o:
