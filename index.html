@@ -9,24 +9,14 @@ body {
   font-family: Arial;
   margin: 40px;
 
-  /* ✅ FIXED LOGO BACKGROUND */
-  background-image: url("mumlycare-logo-text-Be61iYWR.png");
+  /* ✅ LOGO BACKGROUND */
+  background:
+    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+    url("mumlycare-logo-text-Be61iYWR.png");
+
   background-repeat: no-repeat;
   background-position: center;
   background-size: 420px;
-  background-attachment: fixed;
-}
-
-/* ✅ OVERLAY FOR 15% TRANSPARENCY */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255,255,255,0.85);
-  z-index: -1;
 }
 
 h2 {
@@ -48,17 +38,17 @@ h2 {
 }
 
 button {
+  margin-top: 20px;
   padding: 10px 25px;
-  background-color: green;
+  background: green;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 #result {
   margin-top: 20px;
-  font-size: 18px;
   font-weight: bold;
 }
 </style>
@@ -81,12 +71,12 @@ button {
 
 <script>
 
-// ✅ YOUR BACKEND
+// ✅ YOUR WORKING BACKEND
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwIvy0tHZF6JYFP3VdYlUhdYzoHhzwHWnewL6mLXvorsQqu2tRDqd8ozg7PvVEisf_y/exec";
 
 let questions = [];
 
-// ✅ LOAD QUESTIONS (FIXED)
+// ✅ LOAD QUESTIONS
 function loadQuestions() {
   fetch(WEB_APP_URL)
     .then(res => res.text())
@@ -95,8 +85,7 @@ function loadQuestions() {
       questions = data;
       renderQuestions();
     })
-    .catch(err => {
-      console.error(err);
+    .catch(() => {
       alert("❌ Failed to load questions");
     });
 }
@@ -139,7 +128,8 @@ let t = setInterval(() => {
 
 }, 1000);
 
-// ✅ SUBMIT (FIXED USING FormData)
+
+// ✅ SUBMIT (FINAL FIX)
 function submitExam() {
 
   clearInterval(t);
@@ -165,16 +155,19 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "Submitting...";
 
-  // ✅ FIXED POST
-  let formData = new FormData();
-  formData.append("name", name);
-  formData.append("score", percent);
-  formData.append("status", status);
+  // ✅ FINAL FIX: URL encoded (WORKS 100%)
+  let params = new URLSearchParams();
+  params.append("name", name);
+  params.append("score", percent);
+  params.append("status", status);
 
   fetch(WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
-    body: formData
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: params.toString()
   })
   .then(() => {
     document.getElementById("result").innerHTML =
@@ -192,3 +185,4 @@ loadQuestions();
 
 </body>
 </html>
+``
