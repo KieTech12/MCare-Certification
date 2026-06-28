@@ -6,18 +6,7 @@
 
 <style>
 body { font-family: Arial; margin:40px; }
-
 #timer { color:red; font-size:20px; }
-
-.watermark {
-  position: fixed;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  opacity:0.15;
-  z-index:-1;
-  width:400px;
-}
 </style>
 </head>
 
@@ -41,38 +30,33 @@ body { font-family: Arial; margin:40px; }
 // ✅ YOUR BACKEND URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQXV64cNdi4rn9TcUgSz3QGYdJMbCMWJWp78Dsu_-7Z8O3vBEI5T2a5BZY5p3HejeK/exec";
 
-// ✅ LOAD AFTER PAGE READY
-document.addEventListener("DOMContentLoaded", function(){
-
+// ✅ QUESTIONS (KEEP SIMPLE & STABLE)
 const questions = [
-  {q:"Primary responsibility of caregiver?",
-   o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
-
-  {q:"Report elder abuse to?",
-   o:["Private","Supervisor","Friends","Self"], a:1},
-
-  {q:"Normal SpO2?",
-   o:["<85","85-90","95-100",">100"], a:2},
-
-  {q:"Reposition frequency?",
-   o:["Daily","4-6 hours","Every 2 hours","On request"], a:2},
-
-  {q:"Chest pain action?",
-   o:["Water","Rest","Emergency call","Ignore"], a:2}
+  {q:"Primary responsibility of caregiver?", o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
+  {q:"Report elder abuse to?", o:["Private","Supervisor","Friends","Self"], a:1},
+  {q:"Normal SpO2?", o:["<85","85-90","95-100",">100"], a:2},
+  {q:"Reposition frequency?", o:["Daily","4-6 hours","Every 2 hours","On request"], a:2},
+  {q:"Chest pain action?", o:["Water","Rest","Emergency call","Ignore"], a:2}
 ];
 
-// ✅ RENDER QUESTIONS
-let qBox = document.getElementById("questions");
+// ✅ RENDER QUESTIONS (VERY SIMPLE - NO FAILURES)
+function renderQuestions() {
+  const qBox = document.getElementById("questions");
+  qBox.innerHTML = "";
 
-questions.forEach((q,i)=>{
-  let block = `<p><b>${i+1}. ${q.q}</b></p>`;
+  questions.forEach((q,i)=>{
+    let html = `<p><b>${i+1}. ${q.q}</b></p>`;
 
-  q.o.forEach((opt,index)=>{
-    block += `<input type="radio" name="q${i}" value="${index}"> ${opt}<br>`;
+    q.o.forEach((opt,index)=>{
+      html += `<input type="radio" name="q${i}" value="${index}"> ${opt}<br>`;
+    });
+
+    qBox.innerHTML += html + "<br>";
   });
+}
 
-  qBox.insertAdjacentHTML("beforeend", block + "<br>");
-});
+// ✅ RUN IMMEDIATELY (no timing issues)
+renderQuestions();
 
 // ✅ TIMER
 let time = 600;
@@ -80,13 +64,12 @@ setInterval(()=>{
   time--;
   let min = Math.floor(time/60);
   let sec = time%60;
-
   document.getElementById("timer").innerText =
     "Time Left: " + min + ":" + (sec<10?"0":"")+sec;
 },1000);
 
-// ✅ SUBMIT FUNCTION
-window.submitExam = async function(){
+// ✅ SUBMIT
+async function submitExam(){
 
   let name = document.getElementById("name").value;
 
@@ -107,4 +90,32 @@ window.submitExam = async function(){
   let percent = (score / questions.length) * 100;
   let status = percent >= 70 ? "PASS" : "FAIL";
 
-  // ✅ SHOW RESULT
+  document.getElementById("result").innerHTML =
+    `${name} | Score: ${percent}% | ${status}`;
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append("name", name);
+    formData.append("score", percent);
+    formData.append("status", status);
+
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    const txt = await res.text();
+    console.log("Response:", txt);
+
+    alert("✅ Result submitted successfully");
+
+  } catch(e){
+    console.error(e);
+    alert("❌ Failed to submit result");
+  }
+}
+
+</script>
+
+</body>
+</html>
