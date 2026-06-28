@@ -7,6 +7,7 @@
 <style>
 body { font-family: Arial; margin:40px; }
 
+/* ✅ LOGO WATERMARK */
 .watermark {
   position: fixed;
   top:50%;
@@ -23,8 +24,8 @@ body { font-family: Arial; margin:40px; }
 
 <body>
 
-<!-- ✅ LOGO FIXED -->
-<img src="mumlycare-logo-text-Be61iYWR.png" class="watermark"/>
+<!-- ✅ YOUR LOGO -->
+<img src="mumlycare-logo-text-Be61iYWR.png" class="watermark">
 
 <h2>MumlyCare Certification Exam</h2>
 
@@ -41,78 +42,12 @@ body { font-family: Arial; margin:40px; }
 
 <script>
 
-// ✅ WAIT FOR PAGE TO LOAD (CRITICAL FIX)
+// ✅ YOUR GOOGLE SCRIPT URL
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQXV64cNdi4rn9TcUgSz3QGYdJMbCMWJWp78Dsu_-7Z8O3vBEI5T2a5BZY5p3HejeK/exec";
+
+// ✅ LOAD AFTER PAGE READY
 window.onload = function(){
 
-// ✅ QUESTIONS DATA
+// ✅ QUESTIONS
 const questions = [
-  {q:"Primary responsibility of caregiver?",
-   o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
-
-  {q:"Report elder abuse to?",
-   o:["Private","Supervisor","Friends","Self"], a:1},
-
-  {q:"Normal SpO2?",
-   o:["<85","85-90","95-100",">100"], a:2},
-
-  {q:"Reposition frequency?",
-   o:["Daily","4-6 hours","Every 2 hours","On request"], a:2},
-
-  {q:"Chest pain action?",
-   o:["Water","Rest","Emergency call","Ignore"], a:2}
-];
-
-// ✅ RENDER QUESTIONS
-let qBox = document.getElementById("questions");
-
-questions.forEach((q,i)=>{
-  let html = "<p><b>" + (i+1) + ". " + q.q + "</b></p>";
-
-  q.o.forEach((opt,index)=>{
-    html += `<input type="radio" name="q${i}" value="${index}"> ${opt}<br>`;
-  });
-
-  qBox.innerHTML += html + "<br>";
-});
-
-// ✅ TIMER
-let time = 600;
-setInterval(()=>{
-  time--;
-  let min = Math.floor(time/60);
-  let sec = time%60;
-
-  document.getElementById("timer").innerText =
-    "Time Left: " + min + ":" + (sec<10?"0":"")+sec;
-},1000);
-
-// ✅ SUBMIT FUNCTION
-window.submitExam = function(){
-
-  let name = document.getElementById("name").value;
-  if(!name){
-    alert("Enter name");
-    return;
-  }
-
-  let score = 0;
-
-  questions.forEach((q,i)=>{
-    let ans = document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value) === q.a){
-      score++;
-    }
-  });
-
-  let percent = (score / questions.length)*100;
-
-  document.getElementById("result").innerHTML =
-    `${name} | Score: ${percent}%`;
-};
-
-};
-
-</script>
-
-</body>
-</html>
+  {q:"Primary responsibility of caregiver?", o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
