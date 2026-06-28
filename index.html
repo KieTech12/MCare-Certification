@@ -44,6 +44,12 @@ button {
   color: white;
   border-radius: 6px;
   border: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
 }
 
 #result {
@@ -65,17 +71,17 @@ button {
 
 <div id="questions"></div>
 
-<button onclick="submitExam()" id="submitBtn">Submit Exam</button>
+<button id="submitBtn" onclick="submitExam()">Submit Exam</button>
 
 <p id="result"></p>
 
 <script>
 
-// ✅ YOUR WORKING BACKEND
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwxtdhdQfL_P64WPQ5hcOC5Oh6pt1K9qXhyk7c9m8Anz1vezC095aaac8NLP1qZKOJJ/exec";
+// ✅ YOUR LIVE BACKEND (WORKING)
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwIvy0tHZF6JYFP3VdYlUhdYzoHhzwHWnewL6mLXvorsQqu2tRDqd8ozg7PvVEisf_y/exec";
 
-// ✅ DYNAMIC QUESTIONS
 let questions = [];
+
 
 // ✅ LOAD QUESTIONS
 function loadQuestions() {
@@ -91,13 +97,14 @@ function loadQuestions() {
     });
 }
 
+
 // ✅ RENDER QUESTIONS
 function renderQuestions() {
   const box = document.getElementById("questions");
   box.innerHTML = "";
 
   questions.forEach((q, i) => {
-    let html = `<div class="question"><b>${i + 1}. ${q.q}</b><br>`;
+    let html = `<div class="question"><b>${i + 1}. ${q.q}</b><br><br>`;
 
     q.o.forEach((opt, j) => {
       html += `<input type="radio" name="q${i}" value="${j}"> ${opt}<br>`;
@@ -108,36 +115,50 @@ function renderQuestions() {
   });
 }
 
+
 // ✅ TIMER
 let time = 600;
-let interval = setInterval(() => {
+let timerInterval = setInterval(() => {
 
   if (time <= 0) {
-    clearInterval(interval);
-    alert("Time up!");
+    clearInterval(timerInterval);
+    alert("⏰ Time's up!");
     submitExam();
     return;
   }
 
   time--;
 
-  let m = Math.floor(time / 60);
-  let s = time % 60;
+  let min = Math.floor(time / 60);
+  let sec = time % 60;
 
   document.getElementById("timer").innerText =
-    `Time Left: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    `Time Left: ${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 
 }, 1000);
 
-// ✅ SUBMIT
+
+// ✅ PREVENT MULTIPLE SUBMIT
+let submitted = false;
+
+
+// ✅ SUBMIT EXAM
 function submitExam() {
 
-  clearInterval(interval);
+  if (submitted) return;
+  submitted = true;
+
+  clearInterval(timerInterval);
+
+  let btn = document.getElementById("submitBtn");
+  btn.disabled = true;
 
   let name = document.getElementById("name").value.trim();
 
   if (!name) {
-    alert("Enter name");
+    alert("⚠️ Please enter your name.");
+    submitted = false;
+    btn.disabled = false;
     return;
   }
 
@@ -155,13 +176,15 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "⏳ Submitting...";
 
+  // ✅ SEND RESULT TO SHEET
   fetch(WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     },
-    body: `name=${encodeURIComponent(name)}&score=${percent}&status=${status}`
+    body:
+      `name=${encodeURIComponent(name)}&score=${percent}&status=${status}`
   })
   .then(() => {
 
@@ -170,15 +193,15 @@ function submitExam() {
 
   })
   .catch(() => {
-    alert("Error sending result");
+    alert("❌ Error sending result");
   });
 }
 
-// ✅ RUN APP
+
+// ✅ START APP
 loadQuestions();
 
 </script>
 
 </body>
 </html>
-``
