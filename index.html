@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>MumlyCare Certification Exam</title>
-
 <style>
 body {
   font-family: Arial;
@@ -11,7 +5,7 @@ body {
   position: relative;
 }
 
-/* ✅ WATERMARK IMAGE */
+/* ✅ WATERMARK (SAFE FIX) */
 body::before {
   content: "";
   position: fixed;
@@ -19,16 +13,24 @@ body::before {
   left: 50%;
   width: 500px;
   height: 500px;
-  background: url("mumlycare.png") no-repeat center;
+  background-image: url("mumlycare.png"); /* 👈 check path */
+  background-repeat: no-repeat;
+  background-position: center;
   background-size: contain;
-  opacity: 0.15; /* ✅ 15% transparency */
-  transform: translate(-50%, -50%) rotate(-30deg); /* ✅ diagonal */
+  opacity: 0.15;
+  transform: translate(-50%, -50%) rotate(-30deg);
   z-index: -1;
 }
 
 #timer { color: red; font-size: 20px; }
 
-.question { margin-bottom: 20px; }
+.question {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;   /* ✅ border added */
+  padding: 10px;
+  border-radius: 6px;
+  background: #fff;
+}
 
 button {
   margin-top: 20px;
@@ -45,7 +47,6 @@ button:hover { background-color: #45a049; }
 
 button:disabled {
   background-color: grey;
-  cursor: not-allowed;
 }
 
 #result {
@@ -53,33 +54,4 @@ button:disabled {
   font-size: 18px;
   font-weight: bold;
 }
-
 </style>
-</head>
-
-<body>
-
-<h2>MumlyCare Certification Exam</h2>
-<p id="timer">Time Left: 10:00</p>
-
-<label><b>Candidate Name:</b></label><br>
-<input type="text" id="name" placeholder="Enter your full name"
-style="padding:8px; width:300px; margin-top:6px;"><br><br>
-
-<div id="questions"></div>
-
-<button id="submitBtn" onclick="submitExam()">Submit Exam</button>
-
-<p id="result"></p>
-
-<script>
-
-// ✅ BACKEND
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9l8P2laoLoXVbXS2F5rZakv9x-td6fkvrz8rDK_s-zKlFYi6KsUhK0W2MsoUdBbwp/exec";
-
-// ✅ QUESTIONS
-const questions = [
-  { q: "Primary responsibility of caregiver?", o: ["Admin meds", "Ensure safety", "Surgery", "Finance"], a: 1 },
-  { q: "Report elder abuse to?", o: ["Private", "Supervisor", "Friends", "Self"], a: 1 },
-  { q: "Normal SpO2?", o: ["<85", "85-90", "95-100", ">100"], a: 2 },
-  { q: "Reposition frequency?", o: ["Daily", "4-6 hours", "Every 2 hours", "On request"], a: 2 },
