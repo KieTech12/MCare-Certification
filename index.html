@@ -7,25 +7,24 @@
 <style>
 body { font-family: Arial; margin:40px; }
 
-/* ✅ DIAGONAL WATERMARK */
 .watermark {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top:50%;
+  left:50%;
   transform: translate(-50%, -50%) rotate(-45deg);
-  opacity: 0.15;
-  z-index: -1;
-  width: 600px;
+  opacity:0.15;
+  z-index:-1;
+  width:400px;
 }
 
-#timer { font-size:20px; color:red; }
+#timer { color:red; font-size:20px; }
 </style>
 </head>
 
 <body>
 
-<!-- ✅ CORRECT LOGO -->
-mumlycare-logo-text-Be61iYWR.png
+<!-- ✅ LOGO FIXED -->
+<img src="mumlycare-logo-text-Be61iYWR.png" class="watermark"/>
 
 <h2>MumlyCare Certification Exam</h2>
 
@@ -42,109 +41,76 @@ mumlycare-logo-text-Be61iYWR.png
 
 <script>
 
-// ✅ TIMER
-let time = 600;
-let timer = setInterval(()=>{
-  time--;
+// ✅ WAIT FOR PAGE TO LOAD (CRITICAL FIX)
+window.onload = function(){
 
-  let min = Math.floor(time / 60);
-  let sec = time % 60;
-
-  document.getElementById("timer").innerText =
-    "Time Left: " + min + ":" + (sec < 10 ? "0" : "") + sec;
-
-  if (time <= 0) {
-    clearInterval(timer);
-    submitExam();
-  }
-}, 1000);
-
-// ✅ TAB SWITCH WARNING
-document.addEventListener("visibilitychange", function() {
-  if (document.hidden) {
-    alert("Warning: Tab switching detected!");
-  }
-});
-
-// ✅ QUESTIONS (SAFE + VERIFIED)
+// ✅ QUESTIONS DATA
 const questions = [
-  {q:"What is the primary responsibility of a home-based caregiver?",
-   o:["Administer medications independently",
-     "Ensure safety, comfort, and well-being",
-     "Perform surgery",
-     "Manage finances"], a:1},
+  {q:"Primary responsibility of caregiver?",
+   o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
 
-  {q:"A caregiver should report suspected elder abuse to:",
-   o:["Keep it private",
-     "Supervisor or care platform",
-     "Friends",
-     "Handle personally"], a:1},
+  {q:"Report elder abuse to?",
+   o:["Private","Supervisor","Friends","Self"], a:1},
 
-  {q:"Normal oxygen saturation (SpO2) is:",
-   o:["Below 85%","85–90%","95–100%","Above 100%"], a:2},
+  {q:"Normal SpO2?",
+   o:["<85","85-90","95-100",">100"], a:2},
 
-  {q:"How often should a bedridden patient be repositioned?",
-   o:["Once daily","4–6 hours","Every 2 hours","Only when asked"], a:2},
+  {q:"Reposition frequency?",
+   o:["Daily","4-6 hours","Every 2 hours","On request"], a:2},
 
-  {q:"What should you do if patient has chest pain?",
-   o:["Give water","Let rest","Call emergency services","Ignore"], a:2}
+  {q:"Chest pain action?",
+   o:["Water","Rest","Emergency call","Ignore"], a:2}
 ];
 
-// ✅ RANDOMIZE QUESTIONS
-questions.sort(() => Math.random() - 0.5);
+// ✅ RENDER QUESTIONS
+let qBox = document.getElementById("questions");
 
-// ✅ RENDER QUESTIONS (CRITICAL PART)
-function renderQuestions(){
-  let qBox = document.getElementById("questions");
-  qBox.innerHTML = "";
+questions.forEach((q,i)=>{
+  let html = "<p><b>" + (i+1) + ". " + q.q + "</b></p>";
 
-  questions.forEach((q, i) => {
-
-    let html = `<p><b>${i+1}. ${q.q}</b></p>`;
-
-    let options = q.o.map((o,index)=>({o,index}))
-                     .sort(()=>Math.random()-0.5);
-
-    options.forEach(opt=>{
-      html += `<input type="radio" name="q${i}" value="${opt.index}">
-               ${opt.o}<br>`;
-    });
-
-    qBox.innerHTML += html + "<br>";
+  q.o.forEach((opt,index)=>{
+    html += `<input type="radio" name="q${i}" value="${index}"> ${opt}<br>`;
   });
-}
 
-// ✅ CALL RENDER (IMPORTANT)
-renderQuestions();
+  qBox.innerHTML += html + "<br>";
+});
+
+// ✅ TIMER
+let time = 600;
+setInterval(()=>{
+  time--;
+  let min = Math.floor(time/60);
+  let sec = time%60;
+
+  document.getElementById("timer").innerText =
+    "Time Left: " + min + ":" + (sec<10?"0":"")+sec;
+},1000);
 
 // ✅ SUBMIT FUNCTION
-function submitExam(){
+window.submitExam = function(){
 
   let name = document.getElementById("name").value;
-
   if(!name){
-    alert("Please enter candidate name");
+    alert("Enter name");
     return;
   }
 
   let score = 0;
 
-  questions.forEach((q, i)=>{
-    let selected = document.querySelector(`input[name="q${i}"]:checked`);
-
-    if(selected && parseInt(selected.value) === q.a){
+  questions.forEach((q,i)=>{
+    let ans = document.querySelector(`input[name=q${i}]:checked`);
+    if(ans && parseInt(ans.value) === q.a){
       score++;
     }
   });
 
-  let percent = (score / questions.length) * 100;
-  let status = percent >= 70 ? "PASS ✅" : "FAIL ❌";
+  let percent = (score / questions.length)*100;
 
   document.getElementById("result").innerHTML =
-    `<br><b>${name}</b><br>
-     Score: ${percent}%<br>
-     Result: ${status}`;
-}
+    `${name} | Score: ${percent}%`;
+};
+
+};
 
 </script>
 
