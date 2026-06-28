@@ -9,13 +9,24 @@ body {
   font-family: Arial;
   margin: 40px;
 
-  background:
-    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
-    url("mumlycare-logo-text-Be61iYWR.png");
-
+  /* ✅ FIXED LOGO BACKGROUND */
+  background-image: url("mumlycare-logo-text-Be61iYWR.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 420px;
+  background-attachment: fixed;
+}
+
+/* ✅ SAFE OVERLAY (PREVENTS LOGO DISAPPEARING) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.85);
+  z-index: -1;
 }
 
 h2 {
@@ -43,6 +54,7 @@ button {
   color: white;
   border: none;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 #result {
@@ -69,22 +81,26 @@ button {
 
 <script>
 
-// ✅ YOUR FINAL WORKING URL (KEEP THIS EXACT)
+// ✅ FINAL BACKEND URL (KEEP THIS EXACT)
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUUxEZuaJP-yhi6NqZmF2qRUmplInBJf8aJ_fI1R9urZQnpMkcUUIjd8Dy7FkzVbwBEw/exec";
 
 let questions = [];
 
 
-// ✅ ✅ FINAL FIXED QUESTION LOADER
+// ✅ ✅ FINAL QUESTIONS LOADER (ROBUST)
 function loadQuestions() {
   fetch(WEB_APP_URL)
-    .then(response => response.text())
+    .then(response => {
+      if (!response.ok) throw new Error("Network error");
+      return response.text();
+    })
     .then(text => {
       try {
         const data = JSON.parse(text);
 
         if (!Array.isArray(data)) {
           console.error("Invalid response:", data);
+          alert("❌ Invalid question data");
           return;
         }
 
@@ -92,12 +108,12 @@ function loadQuestions() {
         renderQuestions();
 
       } catch (err) {
-        console.error("Parse error:", text);
+        console.error("JSON parse error:", text);
         alert("❌ Failed to load questions");
       }
     })
     .catch(err => {
-      console.error("Fetch error:", err);
+      console.error(err);
       alert("❌ Failed to load questions");
     });
 }
@@ -109,7 +125,7 @@ function renderQuestions() {
   box.innerHTML = "";
 
   questions.forEach((q, i) => {
-    let html = `<div class="question"><b>${i+1}. ${q.q}</b><br><br>`;
+    let html = `<div class="question"><b>${i + 1}. ${q.q}</b><br><br>`;
 
     q.o.forEach((opt, j) => {
       html += `<input type="radio" name="q${i}" value="${j}"> ${opt}<br>`;
@@ -128,7 +144,7 @@ let timer = setInterval(() => {
 
   if (time <= 0) {
     clearInterval(timer);
-    alert("Time up!");
+    alert("⏰ Time up!");
     submitExam();
     return;
   }
@@ -139,12 +155,12 @@ let timer = setInterval(() => {
   let s = time % 60;
 
   document.getElementById("timer").innerText =
-    `Time Left: ${("0"+m).slice(-2)}:${("0"+s).slice(-2)}`;
+    `Time Left: ${("0" + m).slice(-2)}:${("0" + s).slice(-2)}`;
 
 }, 1000);
 
 
-// ✅ ✅ FINAL SUBMIT (WORKING)
+// ✅ ✅ FINAL SUBMIT (WORKING SAVE)
 function submitExam() {
 
   clearInterval(timer);
@@ -171,7 +187,6 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "Submitting...";
 
-  // ✅ SEND DATA (GET METHOD)
   let url = WEB_APP_URL +
     "?name=" + encodeURIComponent(name) +
     "&score=" + percent +
@@ -180,7 +195,7 @@ function submitExam() {
   fetch(url)
     .then(() => {
       document.getElementById("result").innerHTML =
-        "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will get back to you.";
+        "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will contact you.";
     })
     .catch(() => {
       alert("❌ Error saving result");
@@ -188,7 +203,7 @@ function submitExam() {
 }
 
 
-// ✅ START
+// ✅ START APP
 loadQuestions();
 
 </script>
