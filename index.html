@@ -3,34 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <title>MumlyCare Certification Exam</title>
-
 <style>
 body { font-family: Arial; margin:40px; }
 #timer { color:red; font-size:20px; }
 </style>
 </head>
-
 <body>
-
 <h2>MumlyCare Certification Exam</h2>
-
 <p id="timer">Time Left: 10:00</p>
-
 <label>Candidate Name:</label>
 <input type="text" id="name" required><br><br>
-
 <div id="questions"></div>
-
 <button onclick="submitExam()">Submit</button>
-
 <p id="result"></p>
-
 <script>
-
-// ✅ BACKEND URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQXV64cNdi4rn9TcUgSz3QGYdJMbCMWJWp78Dsu_-7Z8O3vBEI5T2a5BZY5p3HejeK/exec";
 
-// ✅ QUESTIONS
 const questions = [
   {q:"Primary responsibility of caregiver?", o:["Admin meds","Ensure safety","Surgery","Finance"], a:1},
   {q:"Report elder abuse to?", o:["Private","Supervisor","Friends","Self"], a:1},
@@ -39,25 +27,19 @@ const questions = [
   {q:"Chest pain action?", o:["Water","Rest","Emergency call","Ignore"], a:2}
 ];
 
-// ✅ RENDER QUESTIONS
 function renderQuestions() {
   let qBox = document.getElementById("questions");
   qBox.innerHTML = "";
-
   questions.forEach(function(q,i){
     let html = "<p><b>" + (i+1) + ". " + q.q + "</b></p>";
-
     for(let j=0; j < q.o.length; j++){
       html += `<input type="radio" name="q${i}" value="${j}"> ${q.o[j]}<br>`;
     }
-
     qBox.innerHTML += html + "<br>";
   });
 }
-
 renderQuestions();
 
-// ✅ TIMER
 let time = 600;
 let timerInterval = setInterval(function(){
   if (time <= 0) {
@@ -66,37 +48,22 @@ let timerInterval = setInterval(function(){
     submitExam();
     return;
   }
-
   time--;
-
   let min = Math.floor(time/60);
   let sec = time%60;
-
   document.getElementById("timer").innerText =
     "Time Left: " + min + ":" + (sec < 10 ? "0" : "") + sec;
-
 }, 1000);
 
-// ✅ SUBMIT FUNCTION
 function submitExam(){
-
-  clearInterval(timerInterval); // stop timer after submit
-
+  clearInterval(timerInterval);
   let name = document.getElementById("name").value.trim();
-
-  if(!name){
-    alert("Please enter your name");
-    return;
-  }
+  if(!name){ alert("Please enter your name"); return; }
 
   let score = 0;
-
   for(let i=0; i < questions.length; i++){
     let ans = document.querySelector(`input[name="q${i}"]:checked`);
-
-    if(ans && parseInt(ans.value) === questions[i].a){
-      score++;
-    }
+    if(ans && parseInt(ans.value) === questions[i].a){ score++; }
   }
 
   let percent = ((score / questions.length) * 100).toFixed(0);
@@ -105,26 +72,21 @@ function submitExam(){
   document.getElementById("result").innerHTML =
     `${name} | Score: ${percent}% | ${status}`;
 
-  // ✅ SEND DATA
+  // ✅ FIXED FETCH — mode: "no-cors" resolves the redirect/CORS error
   fetch(WEB_APP_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: `name=${encodeURIComponent(name)}&score=${percent}&status=${status}`
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `name=${encodeURIComponent(name)}&score=${encodeURIComponent(percent)}&status=${encodeURIComponent(status)}`
   })
-  .then(res => res.text())
-  .then(data => {
-    console.log("Server response:", data);
-    alert("✅ SUCCESS: Data saved");
+  .then(() => {
+    alert("✅ SUCCESS: Data saved to sheet");
   })
   .catch(err => {
     console.error(err);
     alert("❌ ERROR sending data");
   });
 }
-
 </script>
-
 </body>
 </html>
