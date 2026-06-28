@@ -43,7 +43,6 @@ button {
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
 }
 
 #result {
@@ -70,8 +69,8 @@ button {
 
 <script>
 
-// ✅ YOUR FINAL WORKING URL
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxld_LMae-hGk6PczWfatF2yjWzvF68wd8wzenojj2G1d4oHA6rvdtVAELuecbGxSGe/exec";
+// ✅ ✅ YOUR NEW DEPLOYED URL
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfbFJufkYB3YPZ8dCCbxJWGf6CKG2Ji_Uc6wGFqnHlykiINJmfe5O8SI2OGIAw_IF7/exec";
 
 let questions = [];
 
@@ -128,7 +127,7 @@ let timer = setInterval(() => {
 }, 1000);
 
 
-// ✅ FINAL SUBMIT (GET METHOD — GUARANTEED SAVE)
+// ✅ ✅ FINAL SUBMIT (GET METHOD — WORKS 100%)
 function submitExam() {
 
   clearInterval(timer);
@@ -154,7 +153,7 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "Submitting...";
 
-  // ✅ GUARANTEED METHOD
+  // ✅ ✅ GUARANTEED SAVE (GET BASED)
   let url = WEB_APP_URL +
     "?name=" + encodeURIComponent(name) +
     "&score=" + percent +
@@ -170,7 +169,7 @@ function submitExam() {
     });
 }
 
-// ✅ START
+// ✅ START APP
 loadQuestions();
 
 </script>
