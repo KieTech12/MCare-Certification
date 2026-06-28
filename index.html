@@ -8,26 +8,41 @@
 body {
   font-family: Arial;
   margin: 40px;
+  position: relative;
+}
 
-  /* ✅ SAFE BACKGROUND (NO BREAKING) */
+/* ✅ SAFE WATERMARK LAYER */
+body::before {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 450px;
+  height: 450px;
+
   background-image: url("https://kietech12.github.io/mumlycare-logo-text-Be61iYWR.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 420px;
-}
+  background-size: contain;
 
-/* ✅ Keep content readable */
-.question {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 6px;
-  background-color: rgba(255,255,255,0.95); /* ✅ prevents text fade */
+  opacity: 0.15;
+  transform: translate(-50%, -50%) rotate(-30deg);
+
+  pointer-events: none;
+  z-index: -1; /* ✅ ensures it stays behind */
 }
 
 #timer {
   color: red;
   font-size: 20px;
+}
+
+.question {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #fff;
 }
 
 button {
@@ -45,143 +60,3 @@ button:hover {
   background-color: #45a049;
 }
 
-button:disabled {
-  background-color: grey;
-  cursor: not-allowed;
-}
-
-#result {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: bold;
-}
-</style>
-</head>
-
-<body>
-
-<h2>MumlyCare Certification Exam</h2>
-
-<p id="timer">Time Left: 10:00</p>
-
-<label><b>Candidate Name:</b></label><br>
-<input type="text" id="name" placeholder="Enter your full name"
-style="padding:8px; width:300px; margin-top:6px;"><br><br>
-
-<div id="questions"></div>
-
-<button id="submitBtn" onclick="submitExam()">Submit Exam</button>
-
-<p id="result"></p>
-
-<script>
-
-// ✅ BACKEND URL
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9l8P2laoLoXVbXS2F5rZakv9x-td6fkvrz8rDK_s-zKlFYi6KsUhK0W2MsoUdBbwp/exec";
-
-// ✅ QUESTIONS (FIXED)
-const questions = [
-  { q: "Primary responsibility of caregiver?", o: ["Admin meds", "Ensure safety", "Surgery", "Finance"], a: 1 },
-  { q: "Report elder abuse to?", o: ["Private", "Supervisor", "Friends", "Self"], a: 1 },
-  { q: "Normal SpO2?", o: ["<85", "85-90", "95-100", ">100"], a: 2 },
-  { q: "Reposition frequency?", o: ["Daily", "4-6 hours", "Every 2 hours", "On request"], a: 2 },
-  { q: "Chest pain action?", o: ["Water", "Rest", "Emergency call", "Ignore"], a: 2 }
-];
-
-// ✅ RENDER QUESTIONS
-function renderQuestions() {
-  let qBox = document.getElementById("questions");
-  qBox.innerHTML = "";
-
-  questions.forEach(function(q, i) {
-    let html = `<div class="question"><p><b>${i + 1}. ${q.q}</b></p>`;
-    for (let j = 0; j < q.o.length; j++) {
-      html += `<input type="radio" name="q${i}" value="${j}"> ${q.o[j]}<br>`;
-    }
-    html += `</div>`;
-    qBox.innerHTML += html;
-  });
-}
-renderQuestions();
-
-// ✅ TIMER
-let time = 600;
-let timerInterval = setInterval(function() {
-
-  if (time <= 0) {
-    clearInterval(timerInterval);
-    alert("⏰ Time's up! Auto submitting...");
-    submitExam();
-    return;
-  }
-
-  time--;
-
-  let min = Math.floor(time / 60);
-  let sec = time % 60;
-
-  document.getElementById("timer").innerText =
-    `Time Left: ${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-
-}, 1000);
-
-// ✅ PREVENT DOUBLE SUBMIT
-let submitted = false;
-
-// ✅ SUBMIT FUNCTION
-function submitExam() {
-
-  if (submitted) return;
-  submitted = true;
-
-  clearInterval(timerInterval);
-
-  let btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-
-  let name = document.getElementById("name").value.trim();
-
-  if (!name) {
-    alert("⚠️ Please enter your name.");
-    submitted = false;
-    btn.disabled = false;
-    return;
-  }
-
-  let score = 0;
-
-  for (let i = 0; i < questions.length; i++) {
-    let ans = document.querySelector(`input[name="q${i}"]:checked`);
-    if (ans && parseInt(ans.value) === questions[i].a) {
-      score++;
-    }
-  }
-
-  let percent = ((score / questions.length) * 100).toFixed(0);
-  let status = percent >= 70 ? "PASS" : "FAIL";
-
-  document.getElementById("result").innerHTML = "⏳ Submitting...";
-
-  // ✅ SEND DATA
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `name=${encodeURIComponent(name)}&score=${encodeURIComponent(percent)}&status=${encodeURIComponent(status)}`
-  })
-  .then(() => {
-    document.getElementById("result").innerHTML =
-      `👤 ${name} | Score: ${percent}% | Status: 
-       <span style="color:${status === 'PASS' ? 'green' : 'red'}">${status}</span>`;
-
-    alert("✅ Result saved successfully!");
-  })
-  .catch(() => {
-    alert("❌ ERROR sending data");
-  });
-}
-
-</script>
-
-</body>
-</html>
