@@ -69,28 +69,39 @@ button {
 
 <script>
 
-// ✅ YOUR FINAL APP SCRIPT URL
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfbFJufkYB3YPZ8dCCbxJWGf6CKG2Ji_Uc6wGFqnHlykiINJmfe5O8SI2OGIAw_IF7/exec";
+// ✅ YOUR FINAL WORKING URL (KEEP THIS EXACT)
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUUxEZuaJP-yhi6NqZmF2qRUmplInBJf8aJ_fI1R9urZQnpMkcUUIjd8Dy7FkzVbwBEw/exec";
 
 let questions = [];
 
-// ✅ ✅ FIXED QUESTION LOADER (IMPORTANT)
+
+// ✅ ✅ FINAL FIXED QUESTION LOADER
 function loadQuestions() {
   fetch(WEB_APP_URL)
-    .then(res => res.json())   // ✅ correct parsing
-    .then(data => {
+    .then(response => response.text())
+    .then(text => {
+      try {
+        const data = JSON.parse(text);
 
-      // ✅ Ignore non-array responses (like save response)
-      if (!Array.isArray(data)) return;
+        if (!Array.isArray(data)) {
+          console.error("Invalid response:", data);
+          return;
+        }
 
-      questions = data;
-      renderQuestions();
+        questions = data;
+        renderQuestions();
+
+      } catch (err) {
+        console.error("Parse error:", text);
+        alert("❌ Failed to load questions");
+      }
     })
     .catch(err => {
-      console.error(err);
+      console.error("Fetch error:", err);
       alert("❌ Failed to load questions");
     });
 }
+
 
 // ✅ RENDER QUESTIONS
 function renderQuestions() {
@@ -105,9 +116,11 @@ function renderQuestions() {
     });
 
     html += "</div>";
+
     box.innerHTML += html;
   });
 }
+
 
 // ✅ TIMER
 let time = 600;
@@ -131,7 +144,7 @@ let timer = setInterval(() => {
 }, 1000);
 
 
-// ✅ ✅ FINAL SUBMIT (WORKING SAVE)
+// ✅ ✅ FINAL SUBMIT (WORKING)
 function submitExam() {
 
   clearInterval(timer);
@@ -147,6 +160,7 @@ function submitExam() {
 
   for (let i = 0; i < questions.length; i++) {
     let ans = document.querySelector(`input[name="q${i}"]:checked`);
+
     if (ans && parseInt(ans.value) === questions[i].a) {
       score++;
     }
@@ -157,7 +171,7 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "Submitting...";
 
-  // ✅ ✅ GUARANTEED SAVE METHOD
+  // ✅ SEND DATA (GET METHOD)
   let url = WEB_APP_URL +
     "?name=" + encodeURIComponent(name) +
     "&score=" + percent +
@@ -173,7 +187,8 @@ function submitExam() {
     });
 }
 
-// ✅ START APP
+
+// ✅ START
 loadQuestions();
 
 </script>
