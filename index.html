@@ -1,19 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MumlyCare Certification Exam</title>
+
+<style>
+body {
+  font-family: Arial;
+  margin: 40px;
+
+  background:
+    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+    url("mumlycare-logo-text-Be61iYWR.png");
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 420px;
+}
+
+h2 {
+  text-align: center;
+  color: maroon;
+}
+
+#timer {
+  color: red;
+  font-size: 20px;
+}
+
+.question {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: rgba(255,255,255,0.95);
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 6px;
+  border: none;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>MumlyCare Certification Exam</h2>
+
+<p id="timer">Time Left: 10:00</p>
+
+<label><b>Candidate Name:</b></label><br>
+<input type="text" id="name" style="padding:8px; width:300px;"><br><br>
+
+<div id="questions"></div>
+
+<button onclick="submitExam()" id="submitBtn">Submit Exam</button>
+
+<p id="result"></p>
+
+<script>
+
+// ✅ YOUR WORKING BACKEND
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwxtdhdQfL_P64WPQ5hcOC5Oh6pt1K9qXhyk7c9m8Anz1vezC095aaac8NLP1qZKOJJ/exec";
+
+// ✅ DYNAMIC QUESTIONS
+let questions = [];
+
+// ✅ LOAD QUESTIONS
 function loadQuestions() {
+  fetch(WEB_APP_URL)
+    .then(res => res.json())
+    .then(data => {
+      questions = data;
+      renderQuestions();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ Failed to load questions");
+    });
+}
+
+// ✅ RENDER QUESTIONS
+function renderQuestions() {
+  const box = document.getElementById("questions");
+  box.innerHTML = "";
+
+  questions.forEach((q, i) => {
+    let html = `<div class="question"><b>${i + 1}. ${q.q}</b><br>`;
+
+    q.o.forEach((opt, j) => {
+      html += `<input type="radio" name="q${i}" value="${j}"> ${opt}<br>`;
+    });
+
+    html += "</div>";
+    box.innerHTML += html;
+  });
+}
+
+// ✅ TIMER
+let time = 600;
+let interval = setInterval(() => {
+
+  if (time <= 0) {
+    clearInterval(interval);
+    alert("Time up!");
+    submitExam();
+    return;
+  }
+
+  time--;
+
+  let m = Math.floor(time / 60);
+  let s = time % 60;
+
+  document.getElementById("timer").innerText =
+    `Time Left: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+}, 1000);
+
+// ✅ SUBMIT
+function submitExam() {
+
+  clearInterval(interval);
+
+  let name = document.getElementById("name").value.trim();
+
+  if (!name) {
+    alert("Enter name");
+    return;
+  }
+
+  let score = 0;
+
+  for (let i = 0; i < questions.length; i++) {
+    let ans = document.querySelector(`input[name="q${i}"]:checked`);
+    if (ans && parseInt(ans.value) === questions[i].a) {
+      score++;
+    }
+  }
+
+  let percent = Math.round((score / questions.length) * 100);
+  let status = percent >= 70 ? "PASS" : "FAIL";
+
+  document.getElementById("result").innerHTML = "⏳ Submitting...";
 
   fetch(WEB_APP_URL, {
-    method: "GET",
-    mode: "no-cors"  // ✅ FIX
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `name=${encodeURIComponent(name)}&score=${percent}&status=${status}`
   })
   .then(() => {
 
-    // ❌ no-cors cannot read response
-    // ✅ so we simulate fallback
-
-    alert("⚠️ Questions could not auto-load due to browser restriction.\nPlease check Apps Script deployment settings.");
+    document.getElementById("result").innerHTML =
+      "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will get back to you.";
 
   })
-  .catch(err => {
-    console.error(err);
-    alert("❌ Failed to load questions");
+  .catch(() => {
+    alert("Error sending result");
   });
 }
+
+// ✅ RUN APP
+loadQuestions();
+
+</script>
+
+</body>
+</html>
+``
