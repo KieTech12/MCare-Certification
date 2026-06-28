@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MumlyCare Certification Exam</title>
+
 <style>
 body {
   font-family: Arial;
@@ -5,53 +11,22 @@ body {
   position: relative;
 }
 
-/* ✅ WATERMARK (SAFE FIX) */
+/* ✅ WATERMARK USING YOUR IMAGE */
 body::before {
   content: "";
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 500px;
-  height: 500px;
-  background-image: url("mumlycare.png"); /* 👈 check path */
+  width: 420px;
+  height: 420px;
+
+  /* ✅ IMPORTANT: correct path */
+  background-image: url("mumlycare-logo-text-Be61iYWR.png");
+
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
+
   opacity: 0.15;
   transform: translate(-50%, -50%) rotate(-30deg);
-  z-index: -1;
-}
 
-#timer { color: red; font-size: 20px; }
-
-.question {
-  margin-bottom: 20px;
-  border: 1px solid #ddd;   /* ✅ border added */
-  padding: 10px;
-  border-radius: 6px;
-  background: #fff;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 30px;
-  font-size: 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover { background-color: #45a049; }
-
-button:disabled {
-  background-color: grey;
-}
-
-#result {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: bold;
-}
-</style>
