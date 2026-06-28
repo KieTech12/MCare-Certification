@@ -17,7 +17,7 @@ body { font-family: Arial; margin:40px; }
 <p id="timer">Time Left: 10:00</p>
 
 <label>Candidate Name:</label>
-<input type="text" id="name"><br><br>
+<input type="text" id="name" required><br><br>
 
 <div id="questions"></div>
 
@@ -27,7 +27,7 @@ body { font-family: Arial; margin:40px; }
 
 <script>
 
-// ✅ YOUR BACKEND
+// ✅ BACKEND URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQXV64cNdi4rn9TcUgSz3QGYdJMbCMWJWp78Dsu_-7Z8O3vBEI5T2a5BZY5p3HejeK/exec";
 
 // ✅ QUESTIONS
@@ -47,76 +47,78 @@ function renderQuestions() {
   questions.forEach(function(q,i){
     let html = "<p><b>" + (i+1) + ". " + q.q + "</b></p>";
 
-    for(let j=0;j<q.o.length;j++){
-      html += '<input type="radio" name="q'+i+'" value="'+j+'"> '
-              + q.o[j] + "<br>";
+    for(let j=0; j < q.o.length; j++){
+      html += `<input type="radio" name="q${i}" value="${j}"> ${q.o[j]}<br>`;
     }
 
     qBox.innerHTML += html + "<br>";
   });
 }
 
-// ✅ RUN RENDER
 renderQuestions();
 
 // ✅ TIMER
 let time = 600;
-setInterval(function(){
+let timerInterval = setInterval(function(){
+  if (time <= 0) {
+    clearInterval(timerInterval);
+    alert("⏰ Time's up! Auto submitting...");
+    submitExam();
+    return;
+  }
+
   time--;
+
   let min = Math.floor(time/60);
   let sec = time%60;
 
   document.getElementById("timer").innerText =
-    "Time Left: " + min + ":" + (sec<10?"0":"")+sec;
-},1000);
+    "Time Left: " + min + ":" + (sec < 10 ? "0" : "") + sec;
 
-// ✅ SUBMIT
+}, 1000);
+
+// ✅ SUBMIT FUNCTION
 function submitExam(){
 
-  let name = document.getElementById("name").value;
+  clearInterval(timerInterval); // stop timer after submit
+
+  let name = document.getElementById("name").value.trim();
 
   if(!name){
-    alert("Enter name");
+    alert("Please enter your name");
     return;
   }
 
   let score = 0;
 
-  for(let i=0;i<questions.length;i++){
-    let ans = document.querySelector('input[name="q'+i+'"]:checked');
+  for(let i=0; i < questions.length; i++){
+    let ans = document.querySelector(`input[name="q${i}"]:checked`);
 
     if(ans && parseInt(ans.value) === questions[i].a){
       score++;
     }
   }
 
-  let percent = (score / questions.length) * 100;
+  let percent = ((score / questions.length) * 100).toFixed(0);
   let status = percent >= 70 ? "PASS" : "FAIL";
 
   document.getElementById("result").innerHTML =
-    name + " | Score: " + percent + "% | " + status;
-
-  // ✅ DEBUG: confirm click reached backend
-  alert("Submitting to backend...");
+    `${name} | Score: ${percent}% | ${status}`;
 
   // ✅ SEND DATA
-  let formData = new URLSearchParams();
-  formData.append("name", name);
-  formData.append("score", percent);
-  formData.append("status", status);
-
   fetch(WEB_APP_URL, {
     method: "POST",
-    body: formData
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `name=${encodeURIComponent(name)}&score=${percent}&status=${status}`
   })
-  .then(function(res){
-    return res.text();
-  })
-  .then(function(data){
+  .then(res => res.text())
+  .then(data => {
     console.log("Server response:", data);
     alert("✅ SUCCESS: Data saved");
   })
-  .catch(function(err){
+  .catch(err => {
     console.error(err);
     alert("❌ ERROR sending data");
   });
