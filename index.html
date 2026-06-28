@@ -69,21 +69,25 @@ button {
 
 <script>
 
-// ✅ ✅ YOUR NEW DEPLOYED URL
+// ✅ YOUR FINAL APP SCRIPT URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfbFJufkYB3YPZ8dCCbxJWGf6CKG2Ji_Uc6wGFqnHlykiINJmfe5O8SI2OGIAw_IF7/exec";
 
 let questions = [];
 
-// ✅ LOAD QUESTIONS
+// ✅ ✅ FIXED QUESTION LOADER (IMPORTANT)
 function loadQuestions() {
   fetch(WEB_APP_URL)
-    .then(res => res.text())
-    .then(text => JSON.parse(text))
+    .then(res => res.json())   // ✅ correct parsing
     .then(data => {
+
+      // ✅ Ignore non-array responses (like save response)
+      if (!Array.isArray(data)) return;
+
       questions = data;
       renderQuestions();
     })
-    .catch(() => {
+    .catch(err => {
+      console.error(err);
       alert("❌ Failed to load questions");
     });
 }
@@ -127,7 +131,7 @@ let timer = setInterval(() => {
 }, 1000);
 
 
-// ✅ ✅ FINAL SUBMIT (GET METHOD — WORKS 100%)
+// ✅ ✅ FINAL SUBMIT (WORKING SAVE)
 function submitExam() {
 
   clearInterval(timer);
@@ -153,7 +157,7 @@ function submitExam() {
 
   document.getElementById("result").innerHTML = "Submitting...";
 
-  // ✅ ✅ GUARANTEED SAVE (GET BASED)
+  // ✅ ✅ GUARANTEED SAVE METHOD
   let url = WEB_APP_URL +
     "?name=" + encodeURIComponent(name) +
     "&score=" + percent +
