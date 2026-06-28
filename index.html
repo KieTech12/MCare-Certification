@@ -7,7 +7,7 @@
 <style>
 body { font-family: Arial; margin:40px; }
 
-/* DIAGONAL WATERMARK LOGO */
+/* DIAGONAL LOGO WATERMARK */
 .watermark {
   position: fixed;
   top: 50%;
@@ -24,7 +24,7 @@ body { font-family: Arial; margin:40px; }
 
 <body>
 
-<!-- YOUR LOGO WITH DIAGONAL STYLE -->
+<!-- FIXED LOGO -->
 <img src="mumlycare-logo-text-Be61iYWR.png" class="watermark">
 
 <h2>MumlyCare Certification Exam</h2>
@@ -73,7 +73,7 @@ const questions = [
   {q:"Chest pain action?", o:["Water","Rest","Emergency","Ignore"], a:2}
 ];
 
-// RANDOMIZE
+// RANDOMIZE QUESTIONS
 questions.sort(()=>Math.random()-0.5);
 
 let qBox = document.getElementById("questions");
@@ -90,14 +90,4 @@ questions.forEach((q,i)=>{
 });
 
 function submitExam(){
-
-  let name = document.getElementById("name").value;
-  if(!name){ alert("Enter name"); return; }
-
-  let score = 0;
-
-  questions.forEach((q,i)=>{
-    let ans = document.querySelector(`input[name=q${i}]:checked`);
-    if(ans && parseInt(ans.value) === q.a) score++;
-  });
 
