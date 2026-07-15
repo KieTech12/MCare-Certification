@@ -3,210 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <title>MumlyCare Certification Exam</title>
-
 <style>
-body {
-  font-family: Arial;
-  margin: 40px;
-
-  /* ✅ FIXED LOGO BACKGROUND */
-  background-image: url("mumlycare-logo-text-Be61iYWR.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 420px;
-  background-attachment: fixed;
-}
-
-/* ✅ SAFE OVERLAY (PREVENTS LOGO DISAPPEARING) */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255,255,255,0.85);
-  z-index: -1;
-}
-
-h2 {
-  text-align: center;
-  color: maroon;
-}
-
-#timer {
-  color: red;
-  font-size: 20px;
-}
-
-.question {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 6px;
-  background-color: rgba(255,255,255,0.95);
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 25px;
-  background: green;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#result {
-  margin-top: 20px;
-  font-weight: bold;
-}
+body{font-family:Arial;margin:40px;background-image:url("mumlycare-logo-text-Be61iYWR.png");background-repeat:no-repeat;background-position:center;background-size:525px;background-attachment:fixed}
+body:before{content:"";position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:-1}
+.question{margin:20px 0;padding:10px;border:1px solid #ccc;border-radius:6px;background:#fff}
+button{padding:10px 25px;background:green;color:#fff;border:none;border-radius:5px}
+#timer{color:red;font-size:20px}
 </style>
 </head>
-
 <body>
-
-<h2>MumlyCare Certification Exam</h2>
-
+<h2 style="text-align:center;color:maroon">MumlyCare Certification Exam</h2>
 <p id="timer">Time Left: 10:00</p>
 
 <label><b>Candidate Name:</b></label><br>
-<input type="text" id="name"><br><br>
+<input type="text" id="name" placeholder="Enter your full name"><br><br>
+
+<label><b>Email Address:</b></label><br>
+<input type="email" id="email" placeholder="Enter your email"><br><br>
+
+<label><b>Mobile Number:</b></label><br>
+<input type="tel" id="mobile" placeholder="Enter your mobile number"><br><br>
 
 <div id="questions"></div>
-
 <button onclick="submitExam()">Submit Exam</button>
-
 <p id="result"></p>
 
 <script>
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbwt5D2f6_E7tlHPAwstF8hFh14eqRXSK68nGIWkX2muZmCtFJO_pUxt_2i_UR8sEoRHWQ/exec";
+let questions=[];
 
-// ✅ FINAL BACKEND URL (KEEP THIS EXACT)
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUUxEZuaJP-yhi6NqZmF2qRUmplInBJf8aJ_fI1R9urZQnpMkcUUIjd8Dy7FkzVbwBEw/exec";
-
-let questions = [];
-
-
-// ✅ ✅ FINAL QUESTIONS LOADER (ROBUST)
-function loadQuestions() {
-  fetch(WEB_APP_URL)
-    .then(response => {
-      if (!response.ok) throw new Error("Network error");
-      return response.text();
-    })
-    .then(text => {
-      try {
-        const data = JSON.parse(text);
-
-        if (!Array.isArray(data)) {
-          console.error("Invalid response:", data);
-          alert("❌ Invalid question data");
-          return;
-        }
-
-        questions = data;
-        renderQuestions();
-
-      } catch (err) {
-        console.error("JSON parse error:", text);
-        alert("❌ Failed to load questions");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("❌ Failed to load questions");
-    });
+function loadQuestions(){
+ fetch(WEB_APP_URL)
+ .then(r=>r.text())
+ .then(t=>{questions=JSON.parse(t);renderQuestions();})
+ .catch(()=>alert("Failed to load questions"));
 }
-
-
-// ✅ RENDER QUESTIONS
-function renderQuestions() {
-  let box = document.getElementById("questions");
-  box.innerHTML = "";
-
-  questions.forEach((q, i) => {
-    let html = `<div class="question"><b>${i + 1}. ${q.q}</b><br><br>`;
-
-    q.o.forEach((opt, j) => {
-      html += `<input type="radio" name="q${i}" value="${j}"> ${opt}<br>`;
-    });
-
-    html += "</div>";
-
-    box.innerHTML += html;
-  });
+function renderQuestions(){
+ const box=document.getElementById("questions");
+ box.innerHTML="";
+ questions.forEach((q,i)=>{
+  let h=`<div class="question"><b>${i+1}. ${q.q}</b><br><br>`;
+  q.o.forEach((o,j)=>h+=`<label><input type="radio" name="q${i}" value="${j}"> ${o}</label><br>`);
+  h+="</div>";
+  box.innerHTML+=h;
+ });
 }
+let time=900;
+let timer=setInterval(()=>{
+ if(time<=0){clearInterval(timer);submitExam();return;}
+ time--;
+ document.getElementById("timer").innerText=`Time Left: ${String(Math.floor(time/60)).padStart(2,"0")}:${String(time%60).padStart(2,"0")}`;
+},1000);
 
-
-// ✅ TIMER
-let time = 600;
-let timer = setInterval(() => {
-
-  if (time <= 0) {
-    clearInterval(timer);
-    alert("⏰ Time up!");
-    submitExam();
-    return;
-  }
-
-  time--;
-
-  let m = Math.floor(time / 60);
-  let s = time % 60;
-
-  document.getElementById("timer").innerText =
-    `Time Left: ${("0" + m).slice(-2)}:${("0" + s).slice(-2)}`;
-
-}, 1000);
-
-
-// ✅ ✅ FINAL SUBMIT (WORKING SAVE)
-function submitExam() {
-
-  clearInterval(timer);
-
-  let name = document.getElementById("name").value.trim();
-
-  if (!name) {
-    alert("Enter name");
-    return;
-  }
-
-  let score = 0;
-
-  for (let i = 0; i < questions.length; i++) {
-    let ans = document.querySelector(`input[name="q${i}"]:checked`);
-
-    if (ans && parseInt(ans.value) === questions[i].a) {
-      score++;
-    }
-  }
-
-  let percent = Math.round((score / questions.length) * 100);
-  let status = percent >= 70 ? "PASS" : "FAIL";
-
-  document.getElementById("result").innerHTML = "Submitting...";
-
-  let url = WEB_APP_URL +
-    "?name=" + encodeURIComponent(name) +
-    "&score=" + percent +
-    "&status=" + status;
-
-  fetch(url)
-    .then(() => {
-      document.getElementById("result").innerHTML =
-        "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will contact you.";
-    })
-    .catch(() => {
-      alert("❌ Error saving result");
-    });
+function submitExam(){
+ clearInterval(timer);
+ const name=document.getElementById("name").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const mobile=document.getElementById("mobile").value.trim();
+ if(!name||!email||!mobile){alert("Please enter Name, Email and Mobile Number.");return;}
+ let score=0;
+ for(let i=0;i<questions.length;i++){
+   const a=document.querySelector(`input[name="q${i}"]:checked`);
+   if(a && parseInt(a.value)===questions[i].a)score++;
+ }
+ const percent=Math.round(score/questions.length*100);
+ const status=percent>=70?"PASS":"FAIL";
+ const url=WEB_APP_URL+
+ "?name="+encodeURIComponent(name)+
+ "&email="+encodeURIComponent(email)+
+ "&mobile="+encodeURIComponent(mobile)+
+ "&score="+percent+
+ "&status="+status;
+ document.getElementById("result").innerHTML="Submitting...";
+ fetch(url).then(()=>{
+   document.getElementById("result").innerHTML="✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>MumlyCare Admin team will contact you.";
+ }).catch(()=>alert("Error saving result"));
 }
-
-
-// ✅ START APP
 loadQuestions();
-
 </script>
-
 </body>
 </html>
