@@ -29,7 +29,7 @@ body:before{
     justify-content:space-between;
     align-items:center;
     padding:12px 15px;
-    background:#ffffff;
+    background:#fff;
     border:1px solid #ccc;
     border-radius:8px;
     margin-bottom:20px;
@@ -66,14 +66,24 @@ button:hover{
     background:#0b6b0b;
 }
 
+button:disabled{
+    background:#999;
+    cursor:not-allowed;
+}
+
 input{
     padding:8px;
     width:320px;
     max-width:100%;
 }
 
+#examFooter{
+    text-align:center;
+    margin-top:30px;
+}
+
 #result{
-    margin-top:15px;
+    margin-top:20px;
     font-weight:bold;
 }
 </style>
@@ -96,118 +106,4 @@ input{
 <label><b>Email Address:</b></label><br>
 <input type="email" id="email" placeholder="Enter your email" required><br><br>
 
-<label><b>Mobile Number:</b></label><br>
-<input
-    type="tel"
-    id="mobile"
-    placeholder="Enter your mobile number"
-    maxlength="10"
-    inputmode="numeric"
-    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-<br><br>
-
-<div id="questions"></div>
-
-<button onclick="submitExam()">Submit Exam</button>
-
-<p id="result"></p>
-
-<script>
-
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUeXJmK5p-5GIwCAngnyyUQUW4xWe5UU1LzhrNd1zwEqgwtbFVWjwLxucLeH8lHEGf7w/exec";
-
-let questions = [];
-
-/* DATE & TIME DISPLAY */
-function updateDateTime() {
-    const now = new Date();
-
-    document.getElementById("currentDate").innerHTML =
-        now.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        }) +
-        " " +
-        now.toLocaleTimeString("en-GB");
-}
-
-updateDateTime();
-setInterval(updateDateTime, 1000);
-
-/* LOAD QUESTIONS */
-function loadQuestions() {
-    fetch(WEB_APP_URL)
-    .then(r => r.text())
-    .then(t => {
-
-        questions = JSON.parse(t);
-
-        for(let i = questions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [questions[i], questions[j]] =
-            [questions[j], questions[i]];
-        }
-
-        renderQuestions();
-
-    })
-    .catch(() => alert("Failed to load questions"));
-}
-
-/* RENDER QUESTIONS */
-function renderQuestions() {
-
-    const box = document.getElementById("questions");
-    box.innerHTML = "";
-
-    questions.forEach((q, i) => {
-
-        let h =
-        `<div class="question">
-            <b>${i + 1}. ${q.q}</b><br><br>`;
-
-        q.o.forEach((o, j) => {
-            h +=
-            `<label>
-                <input type="radio" name="q${i}" value="${j}">
-                ${o}
-             </label><br>`;
-        });
-
-        h += "</div>";
-
-        box.innerHTML += h;
-    });
-}
-
-/* 45-MINUTE TIMER */
-let time = 2700;
-
-let timer = setInterval(() => {
-
-    if (time <= 0) {
-
-        clearInterval(timer);
-
-        alert("Time is up. Your exam will be submitted automatically.");
-
-        submitExam();
-        return;
-    }
-
-    if (time === 300) {
-        alert("Only 5 minutes remaining!");
-    }
-
-    time--;
-
-    document.getElementById("timer").innerText =
-        `Time Left: ${String(Math.floor(time / 60)).padStart(2,"0")}:${String(time % 60).padStart(2,"0")}`;
-
-}, 1000);
-
-/* SUBMIT EXAM */
-function submitExam() {
-
-    
+<label><b>Mobile Number:</b></label
