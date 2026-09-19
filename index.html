@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<h2 style="text-align:center;color:maroon;font-size:2.16em;font-weight:bold;">MumlyCare Certification Exam</h2>
+<title>MumlyCare Certification Exam</title>
+
 <style>
 body{
     font-family:Arial;
@@ -98,9 +99,7 @@ input{
 
 <body>
 
-<h2 style="text-align:center;color:maroon">
-    MumlyCare Certification Exam
-</h2>
+<h2 style="text-align:center;color:maroon;font-size:2.16em;font-weight:bold;">MumlyCare Certification Exam</h2>
 
 <div id="headerBar">
     <div id="currentDate"></div>
@@ -271,119 +270,4 @@ function renderQuestions(){
         h += "</div>";
 
         box.innerHTML += h;
-    });
-}
-
-/* TIMER */
-
-function startTimer(){
-
-    timer = setInterval(()=>{
-
-        if(time <= 0){
-
-            clearInterval(timer);
-
-            alert(
-              "Time is up. Exam will be submitted automatically."
-            );
-
-            submitExam();
-
-            return;
-        }
-
-        if(time === 300){
-            alert("Only 5 minutes remaining!");
-        }
-
-        time--;
-
-        document.getElementById("timer").innerText =
-        `Time Left: ${
-            String(Math.floor(time/60))
-            .padStart(2,"0")
-        }:${
-            String(time%60)
-            .padStart(2,"0")
-        }`;
-
-    },1000);
-}
-
-/* SUBMIT */
-
-function submitExam(){
-
-    clearInterval(timer);
-
-    document.getElementById("submitBtn")
-        .disabled = true;
-
-    const name =
-        document.getElementById("name").value.trim();
-
-    const email =
-        document.getElementById("email").value.trim();
-
-    const mobile =
-        document.getElementById("mobile").value.trim();
-
-    let score = 0;
-
-    for(let i=0;i<questions.length;i++){
-
-        const a =
-        document.querySelector(
-        `input[name="q${i}"]:checked`);
-
-        if(a &&
-           parseInt(a.value) === questions[i].a){
-            score++;
-        }
-    }
-
-    const percent =
-        Math.round(
-        score/questions.length*100
-        );
-
-    const status =
-        percent >= 70 ? "PASS" : "FAIL";
-
-    const url =
-        WEB_APP_URL +
-        "?name=" +
-        encodeURIComponent(name) +
-        "&email=" +
-        encodeURIComponent(email) +
-        "&mobile=" +
-        encodeURIComponent(mobile) +
-        "&score=" +
-        percent +
-        "&status=" +
-        status;
-
-    document.getElementById("result")
-        .innerHTML = "Submitting...";
-
-    fetch(url)
-
-    .then(()=>{
-
-        document.getElementById("result")
-        .innerHTML =
-        "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>" +
-        "MumlyCare Admin team will contact you.";
-
-    })
-
-    .catch(()=>{
-        alert("Error saving result");
-    });
-}
-
-</script>
-
-</body>
-</html>
+  
