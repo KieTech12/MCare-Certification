@@ -77,6 +77,14 @@ input{
     max-width:100%;
 }
 
+#loading{
+    display:none;
+    text-align:center;
+    font-weight:bold;
+    color:maroon;
+    margin:20px 0;
+}
+
 #examFooter{
     text-align:center;
     margin-top:30px;
@@ -104,6 +112,279 @@ input{
 <input type="text" id="name" placeholder="Enter your full name"><br><br>
 
 <label><b>Email Address:</b></label><br>
-<input type="email" id="email" placeholder="Enter your email" required><br><br>
+<input type="email" id="email" placeholder="Enter your email"><br><br>
 
-<label><b>Mobile Number:</b></label
+<label><b>Mobile Number:</b></label><br>
+<input
+    type="tel"
+    id="mobile"
+    placeholder="Enter your mobile number"
+    maxlength="10"
+    inputmode="numeric"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+<br><br>
+
+<div id="loading">
+    Loading exam questions, please wait...
+</div>
+
+<div id="questions"></div>
+
+<div id="examFooter">
+
+    <button id="startBtn" onclick="startExam()">
+        Start Exam
+    </button>
+
+    <button id="submitBtn"
+            onclick="submitExam()"
+            style="display:none;">
+        Submit Exam
+    </button>
+
+</div>
+
+<p id="result"></p>
+
+<script>
+
+const WEB_APP_URL =
+"https://script.google.com/macros/s/AKfycbzUeXJmK5p-5GIwCAngnyyUQUW4xWe5UU1LzhrNd1zwEqgwtbFVWjwLxucLeH8lHEGf7w/exec";
+
+let questions = [];
+let time = 2700;
+let timer;
+
+/* DATE */
+
+function updateDateTime() {
+
+    const now = new Date();
+
+    document.getElementById("currentDate").innerHTML =
+        now.toLocaleDateString("en-GB") +
+        " " +
+        now.toLocaleTimeString("en-GB");
+}
+
+updateDateTime();
+setInterval(updateDateTime,1000);
+
+/* START EXAM */
+
+function startExam() {
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const mobile =
+        document.getElementById("mobile").value.trim();
+
+    if(name === ""){
+        alert("Please enter your Name.");
+        return;
+    }
+
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailPattern.test(email)){
+        alert("Please enter a valid Email Address.");
+        return;
+    }
+
+    if(!/^[0-9]{10}$/.test(mobile)){
+        alert("Please enter a valid 10-digit Mobile Number.");
+        return;
+    }
+
+    document.getElementById("startBtn").disabled = true;
+
+    document.getElementById("loading").style.display =
+        "block";
+
+    loadQuestions();
+}
+
+/* LOAD QUESTIONS */
+
+function loadQuestions(){
+
+    fetch(WEB_APP_URL)
+
+    .then(r => r.text())
+
+    .then(t => {
+
+        questions = JSON.parse(t);
+
+        renderQuestions();
+
+        document.getElementById("loading").style.display =
+            "none";
+
+        document.getElementById("submitBtn").style.display =
+            "inline-block";
+
+        startTimer();
+    })
+
+    .catch(() => {
+
+        document.getElementById("loading").innerHTML =
+            "Failed to load questions.";
+
+        document.getElementById("startBtn").disabled =
+            false;
+    });
+}
+
+/* RENDER QUESTIONS */
+
+function renderQuestions(){
+
+    const box =
+        document.getElementById("questions");
+
+    box.innerHTML = "";
+
+    questions.forEach((q,i)=>{
+
+        let h =
+        `<div class="question">
+            <b>${i+1}. ${q.q}</b><br><br>`;
+
+        q.o.forEach((o,j)=>{
+
+            h += `
+            <label>
+              <input
+                 type="radio"
+                 name="q${i}"
+                 value="${j}">
+              ${o}
+            </label><br>`;
+        });
+
+        h += "</div>";
+
+        box.innerHTML += h;
+    });
+}
+
+/* TIMER */
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(time <= 0){
+
+            clearInterval(timer);
+
+            alert(
+              "Time is up. Exam will be submitted automatically."
+            );
+
+            submitExam();
+
+            return;
+        }
+
+        if(time === 300){
+            alert("Only 5 minutes remaining!");
+        }
+
+        time--;
+
+        document.getElementById("timer").innerText =
+        `Time Left: ${
+            String(Math.floor(time/60))
+            .padStart(2,"0")
+        }:${
+            String(time%60)
+            .padStart(2,"0")
+        }`;
+
+    },1000);
+}
+
+/* SUBMIT */
+
+function submitExam(){
+
+    clearInterval(timer);
+
+    document.getElementById("submitBtn")
+        .disabled = true;
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const mobile =
+        document.getElementById("mobile").value.trim();
+
+    let score = 0;
+
+    for(let i=0;i<questions.length;i++){
+
+        const a =
+        document.querySelector(
+        `input[name="q${i}"]:checked`);
+
+        if(a &&
+           parseInt(a.value) === questions[i].a){
+            score++;
+        }
+    }
+
+    const percent =
+        Math.round(
+        score/questions.length*100
+        );
+
+    const status =
+        percent >= 70 ? "PASS" : "FAIL";
+
+    const url =
+        WEB_APP_URL +
+        "?name=" +
+        encodeURIComponent(name) +
+        "&email=" +
+        encodeURIComponent(email) +
+        "&mobile=" +
+        encodeURIComponent(mobile) +
+        "&score=" +
+        percent +
+        "&status=" +
+        status;
+
+    document.getElementById("result")
+        .innerHTML = "Submitting...";
+
+    fetch(url)
+
+    .then(()=>{
+
+        document.getElementById("result")
+        .innerHTML =
+        "✅ Thank you for completing the MumlyCare Certification Assessment.<br><br>" +
+        "MumlyCare Admin team will contact you.";
+
+    })
+
+    .catch(()=>{
+        alert("Error saving result");
+    });
+}
+
+</script>
+
+</body>
+</html>
